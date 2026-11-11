@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#05070d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>大乐透智能选号</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<!-- 顶部功能导航 -->
+<div class="nav" id="nav">
+  <button class="nav-btn active" data-page="picker"><span class="ni">◈</span>选号</button>
+  <button class="nav-btn" data-page="data"><span class="ni">⟳</span>开奖</button>
+  <button class="nav-btn" data-page="saved"><span class="ni">▤</span>记录</button>
+  <button class="nav-btn" data-page="check"><span class="ni">✓</span>核对</button>
+  <button class="nav-btn" data-page="ai"><span class="ni">✦</span>AI</button>
+</div>
+
+<div class="wrap">
+
+  <!-- 顶栏 -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">大</div>
+      <div>
+        <div class="title">大乐透<span>智能选号</span></div>
+        <div class="sub">Super Lotto · AI Picker</div>
+      </div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:10px;color:var(--text-3);letter-spacing:1px">覆盖引擎</div>
+      <div style="font-size:12px;color:var(--cyan);font-weight:800">v1.1</div>
+    </div>
+  </div>
+
+  <!-- ================= 选号页 ================= -->
+  <section class="page" id="page-picker">
+
+    <!-- 注数档位 -->
+    <div class="card">
+      <div class="card-title"><span class="bar"></span>选择注数</div>
+      <div class="ticket-row" id="ticketRow"></div>
+      <div class="ticket-info">
+        <span>共 <b id="ticketCount">10</b> 注 · <span class="amt" id="ticketAmt">20 元</span></span>
+        <span id="ticketNote" style="font-size:11px;color:var(--text-3)"></span>
+      </div>
+
+      <div class="prob-box">
+        <div class="prob-head">
+          <span>至少中一注概率</span>
+          <span class="val" id="probVal">--</span>
+        </div>
+        <div class="prob-bar"><div class="prob-fill" id="probFill"></div></div>
+        <div class="prob-note" id="probNote"></div>
+      </div>
+    </div>
+
+    <!-- 选号设置 -->
+    <div class="card">
+      <div class="card-title"><span class="bar"></span>选号设置</div>
+
+      <div class="tabs" id="modeTabs">
+        <div class="tab active" data-mode="normal">普通预测</div>
+        <div class="tab" data-mode="fu">复式选号</div>
+        <div class="tab" data-mode="dan">胆拖选号</div>
+      </div>
+
+      <!-- 普通模式 -->
+      <div id="panelNormal">
+        <div class="field">
+          <label>和值范围</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="number" id="sumMin" value="80" min="15" max="165">
+            <span style="color:var(--text-3)">~</span>
+            <input type="number" id="sumMax" value="105" min="15" max="165">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>跨度范围</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="number" id="spanMin" value="20" min="4" max="34">
+            <span style="color:var(--text-3)">~</span>
+            <input type="number" id="spanMax" value="30" min="4" max="34">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>奇数个数</label>
+          <select id="oddEven">
+            <option value="">自动（2 或 3 个）</option>
+            <option value="2">固定 2 个奇数</option>
+            <option value="3">固定 3 个奇数</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 复式模式 -->
+      <div id="panelFu" style="display:none">
+        <div class="field">
+          <label>前区个数（5-18）</label>
+          <input type="number" id="fuFront" value="6" min="5" max="18">
+        </div>
+        <div class="field">
+          <label>后区个数（2-12）</label>
+          <input type="number" id="fuBack" value="2" min="2" max="12">
+        </div>
+        <div class="hint">
+          <span class="hi">◈</span>
+          <span id="fuInfo">复式注数将自动计算，每注 2 元。</span>
+        </div>
+      </div>
+
+      <!-- 胆拖模式 -->
+      <div id="panelDan" style="display:none">
+        <div class="field">
+          <label>前区胆码（1-5 个，逗号分隔）</label>
+          <input type="text" id="danFront" placeholder="例如：3,15">
+        </div>
+        <div class="field">
+          <label>前区拖码（逗号分隔）</label>
+          <input type="text" id="danTuo" placeholder="例如：1,7,12,20,25,30,33">
+        </div>
+        <div class="field">
+          <label>后区胆码（0-2 个，逗号分隔）</label>
+          <input type="text" id="danBack" placeholder="例如：5">
+        </div>
+        <div class="field">
+          <label>后区拖码（逗号分隔）</label>
+          <input type="text" id="danBackTuo" placeholder="例如：1,7,9">
+        </div>
+        <div class="hint">
+          <span class="hi">◈</span>
+          <span id="danInfo">胆码为每注必选，拖码补足剩余个数。</span>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:14px">
+        <label>杀号（前区，逗号分隔）</label>
+        <input type="text" id="killFront" placeholder="例如：1,5,20（留空则不用）">
+      </div>
+
+      <div class="field">
+        <label>杀号（后区，逗号分隔）</label>
+        <input type="text" id="killBack" placeholder="例如：3,9（留空则不用）">
+      </div>
+
+      <div class="field">
+        <label>断区（勾选则该区号码全部排除）</label>
+        <div class="zone-row" id="zoneRow">
+          <div class="zone-chip" data-zone="1">一区 01-12</div>
+          <div class="zone-chip" data-zone="2">二区 13-24</div>
+          <div class="zone-chip" data-zone="3">三区 25-35</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>区间比（可留空）</label>
+        <input type="text" id="zoneRatio" placeholder="例如：2:2:1">
+      </div>
+
+      <div class="toggle-row">
+        <div class="lbl">遗漏分层加权<small>热号加权，冷号降权</small></div>
+        <div class="switch on" id="swTier"></div>
+      </div>
+      <div class="toggle-row">
+        <div class="lbl">对码互斥<small>同一注不出现互为对码的号</small></div>
+        <div class="switch on" id="swPair"></div>
+      </div>
+      <div class="toggle-row">
+        <div class="lbl">覆盖率优化<small>最小化注间重叠，提升整体覆盖</small></div>
+        <div class="switch on" id="swOpt"></div>
+      </div>
+    </div>
+
+    <!-- 结果 -->
+    <div class="card">
+      <div class="card-title"><span class="bar"></span>选号结果</div>
+      <div id="result">
+        <div class="empty">
+          <div class="ico">◈</div>
+          <div class="txt">点击下方「开始选号」生成号码<br>号码保存在本机，离线可用</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 遗漏分层 -->
+    <div class="card" id="tierCard" style="display:none">
+      <div class="card-title"><span class="bar"></span>遗漏分层</div>
+      <div class="tier-grid" id="tierGrid"></div>
+      <div class="hint">
+        <span class="hi">◈</span>
+        <span>按历史开奖遗漏值分层：热号（≤2期）、温号（≤7期）、冷号（≤14期）、极冷号（&gt;14期）。开启加权后热号出现概率提升。</span>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ================= 开奖页 ================= -->
+  <section class="page" id="page-data" style="display:none">
+    <div class="card">
+      <div class="card-title">
+        <span class="bar"></span>开奖数据
+        <span class="ct-right" id="dataStatus">未获取</span>
+      </div>
+      <div class="data-actions">
+        <button class="mini-btn" id="btnFetch">获取最新开奖</button>
+        <button class="mini-btn ghost" id="btnManual">手动录入</button>
+        <button class="mini-btn ghost" id="btnClearDraw">清空</button>
+      </div>
+
+      <!-- 手动录入表单（默认隐藏） -->
+      <div class="manual-form" id="manualForm" style="display:none">
+        <div class="field">
+          <label>期号</label>
+          <input type="text" id="mPeriod" placeholder="如 26130" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label>前区 5 个（空格或逗号分隔）</label>
+          <input type="text" id="mFront" placeholder="如 2,12,14,17,33" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label>后区 2 个（空格或逗号分隔）</label>
+          <input type="text" id="mBack" placeholder="如 7,8" inputmode="numeric">
+        </div>
+        <div class="data-actions" style="margin-bottom:0">
+          <button class="mini-btn" id="btnManualSave">保存这期</button>
+          <button class="mini-btn ghost" id="btnManualCancel">取消</button>
+        </div>
+      </div>
+
+      <div id="drawList" class="draw-list">
+        <div class="mini-empty">尚未获取开奖数据。点「获取最新开奖」联网拉取最近 30 期，离线时可手动录入。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 记录页 ================= -->
+  <section class="page" id="page-saved" style="display:none">
+    <div class="card">
+      <div class="card-title">
+        <span class="bar"></span>我的选号
+        <span class="ct-right" id="savedCount">0 组</span>
+      </div>
+      <div class="data-actions">
+        <button class="mini-btn" id="btnExport">导出数据 JSON</button>
+        <button class="mini-btn ghost" id="btnExportDel">清空记录</button>
+      </div>
+      <div id="savedList" class="saved-list">
+        <div class="mini-empty">每次生成的号码可点「保存这组」，之后在这里核对是否中奖。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 核对页 ================= -->
+  <section class="page" id="page-check" style="display:none">
+    <div class="card">
+      <div class="card-title"><span class="bar"></span>中奖核对</div>
+      <div class="field">
+        <label>开奖期号（下拉选，或手动填写前区/后区）</label>
+        <select id="checkPeriod"><option value="">— 先获取开奖数据 —</option></select>
+      </div>
+      <div class="field">
+        <label>或手动输入开奖号码</label>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="drawFrontIn" placeholder="前区 5 个，如 2,12,14,17,33">
+          <input type="text" id="drawBackIn" placeholder="后区 2 个，如 7,8" style="flex:0 0 40%">
+        </div>
+      </div>
+      <div class="data-actions">
+        <button class="mini-btn" id="btnCheckSaved">核对我保存的号码</button>
+        <button class="mini-btn ghost" id="btnCheckNow">核对当前结果</button>
+      </div>
+      <div id="checkResult"></div>
+    </div>
+  </section>
+
+  <!-- ================= AI 页 ================= -->
+  <section class="page" id="page-ai" style="display:none">
+    <div class="card">
+      <div class="card-title"><span class="bar"></span>AI 智能选号</div>
+
+      <div class="toggle-row">
+        <div class="lbl">启用 AI 选号<small>调用大模型生成参考号码（需自备 API Key）</small></div>
+        <div class="switch" id="swAI"></div>
+      </div>
+
+      <div class="field">
+        <label>服务商</label>
+        <select id="aiProvider"></select>
+      </div>
+      <div class="field">
+        <label>API Key</label>
+        <input type="password" id="aiKey" placeholder="sk-...（保存后仅存本机）" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Base URL</label>
+        <input type="text" id="aiUrl" placeholder="https://api.siliconflow.cn/v1">
+      </div>
+      <div class="field">
+        <label>模型名</label>
+        <input type="text" id="aiModel" placeholder="deepseek-ai/DeepSeek-V3">
+      </div>
+
+      <div class="data-actions">
+        <button class="mini-btn" id="btnAiSave">保存配置</button>
+        <button class="mini-btn ghost" id="btnAiGo">AI 选号</button>
+      </div>
+
+      <div class="hint">
+        <span class="hi">◈</span>
+        <span>AI 会结合近 20 期热号/冷号统计给出一组参考号码，模型输出仅为随机性参考，不构成中奖保证。</span>
+      </div>
+
+      <div id="aiResult" class="ai-result">
+        <div class="mini-empty">配置 API Key 后点「AI 选号」。无 Key 时该功能不可用，不影响其他功能。</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- 底部操作 -->
+<div class="dock" id="dock">
+  <div class="wrap-dock">
+    <button class="btn" id="btnGen" style="flex:2">开始选号</button>
+    <button class="btn ghost" id="btnSave" style="flex:1">保存</button>
+    <button class="btn ghost" id="btnCopy" style="flex:1">复制</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="lotto-core.js"></script>
+<script src="lotto-rules.js"></script>
+<script src="lotto-data.js"></script>
+<script src="lotto-ai.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
